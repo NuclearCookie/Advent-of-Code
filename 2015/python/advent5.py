@@ -1012,3 +1012,13 @@ for line in input.splitlines():
                 valid_strings += 1
 
 print valid_strings
+
+valid_strings = 0
+for line in input.splitlines():
+    non_overlapping_pairs = re.findall(r'(.)(.).*\1\2', line)
+    if non_overlapping_pairs:
+        repeating_letter = re.findall(r'(.).(\1)', line)
+        if repeating_letter:
+            valid_strings += 1
+
+print valid_strings
