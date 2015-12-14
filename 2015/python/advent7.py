@@ -340,8 +340,8 @@ gj RSHIFT 3 -> gl
 fo RSHIFT 3 -> fq
 he RSHIFT 2 -> hf"""
 
-variable_map = {}
 variable_array = []
+solved_variables = {}
 
 class instruction:
     def __init__(self, line):
@@ -353,18 +353,24 @@ class instruction:
         self.operation.append( parsed_operation.group(4) )
 
     def get_lhs(self):
+        if self.operation[0] in solved_variables:
+            self.operation[0] = solved_variables[ self.operation[0] ]
+
         return self.operation[0]
 
     def get_port(self):
         return self.operation[1]
 
     def get_rhs(self):
+        if self.operation[2] in solved_variables:
+            self.operation[2] = solved_variables[ self.operation[2] ]
+
         return self.operation[2]
 
-    def get_result(self, index):
-        return self.operation[index]
+    def get_result(self):
+        return self.operation[3]
 
-    def set_result(self, value, index):
+    def set_value(self, value, index):
         self.operation[index] = value
 
 def is_int(value):
@@ -379,41 +385,37 @@ def parse_operation( line ):
     assert match, "invalid regex.."
     return match
 
-def eval(variable, index):
-    #print ( "evaluating: " + str( variable ) )
+def eval(variable):
     if is_int(variable):
         return variable
 
     instruction = find_assignment_to( variable )
-    eval_internal( instruction, index )
-    #print( "Done evaluating:")
-    print( str( instruction.get_lhs() ) + " " + str( instruction.get_port() ) + " " + str( instruction.get_rhs() ) + " -> " + str( instruction.get_result(3) ) )
+    instruction.set_value( eval_internal( instruction.get_lhs() ), 0 )
+    instruction.set_value( eval_internal( instruction.get_rhs() ), 2 )
+    solved_variables[ instruction.get_result() ] = eval_internal( instruction.get_result() )
 
-    return instruction.get_result( index )
+    return solved_variables[ instruction.get_result() ]
 
-def eval_internal(instruction, index):
+def eval_internal(instruction):
     if instruction == None:
-        return
+        return None;
 
-    sub_instruction = find_assignment_to( instruction.get_lhs() )
+    if is_int( instruction ):
+        return instruction
 
-    if sub_instruction == None and instruction.get_lhs() == None or is_int( instruction.get_lhs() ):
-        sub_instruction = find_assignment_to( instruction.get_rhs() )
-        if sub_instruction == None and instruction.get_rhs() == None or is_int( instruction.get_rhs() ):
-            return
+    sub_instruction = find_assignment_to( instruction )
 
     if sub_instruction.get_port() == None and sub_instruction.get_rhs() == None:
         if is_int( sub_instruction.get_lhs() ):
-            instruction.set_result( sub_instruction.get_lhs(), index )
+            return sub_instruction.get_lhs()
         else:
-            assert sub_instruction.get_lhs()
-            instruction.set_result( eval( sub_instruction.get_lhs(), index ) )
+            return eval( sub_instruction.get_lhs() )
     elif not sub_instruction.get_lhs():
         assert sub_instruction.get_port() == "NOT"
         if is_int( sub_instruction.get_rhs() ):
-            instruction.set_result( ~ int( sub_instruction.get_rhs(), index ) )
+            return str( ~ int( sub_instruction.get_rhs() ) )
         else:
-            instruction.set_result( eval( sub_instruction.get_rhs(), index ) )
+            return str( ~ int( eval( sub_instruction.get_rhs() ) ) )
     else:
         lhs = 0
         rhs = 0
@@ -421,29 +423,24 @@ def eval_internal(instruction, index):
         if is_int( sub_instruction.get_lhs() ):
             lhs = int( sub_instruction.get_lhs() )
         else:
-            lhs = int( eval( sub_instruction.get_lhs(), 0 ) )
+            lhs = int( eval( sub_instruction.get_lhs() ) )
         if is_int( sub_instruction.get_rhs() ):
             rhs = int( sub_instruction.get_rhs() )
         else:
-            #print( "**2**" + str( sub_instruction.get_lhs() ) + " " + str( sub_instruction.get_port() ) + " " + str( sub_instruction.get_rhs() ) + " -> " + str( sub_instruction.get_result(3) ) )
-            rhs = int( eval( sub_instruction.get_rhs(), 2 ) )
+            rhs = int( eval( sub_instruction.get_rhs() ) )
 
         if port == "AND":
-            instruction.set_result( lhs & rhs, index )
+            return str( lhs & rhs )
         elif port == "OR":
-            instruction.set_result( lhs | rhs, index )
+            return str( lhs | rhs )
         elif port == "LSHIFT":
-            instruction.set_result( lhs << rhs, index )
+            return str( lhs << rhs )
         elif port == "RSHIFT":
-            instruction.set_result( lhs >> rhs, index )
-        else:
-            assert False, get_port
-
+            return str( lhs >> rhs )
 
 def find_assignment_to( variable ):
     for instruction in variable_array:
-        if instruction.get_result(3) == variable:
-            #print( str( instruction.get_lhs() ) + " " + str( instruction.get_port() ) + " " + str( instruction.get_rhs() ) + " -> " + str( instruction.get_result(3) ) )
+        if instruction.get_result() == variable:
             return instruction
 
     return None
@@ -451,4 +448,4 @@ def find_assignment_to( variable ):
 for line in input.splitlines():
     variable_array.append( instruction(line) )
 
-print( eval("a", 3) )
+print( eval("a") )
