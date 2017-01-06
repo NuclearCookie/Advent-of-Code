@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::Read;
 
 mod data;
-mod coordinates;
+mod coordinate;
 
 use data::Data;
 
