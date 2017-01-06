@@ -1,6 +1,7 @@
 use std::ops::*;
+use std::cmp::Ordering;
 
-#[derive(Clone)]
+#[derive(Clone, Eq)]
 pub struct Coordinate {
     pub horizontal_movement : i32,
     pub vertical_movement : i32
@@ -45,5 +46,23 @@ impl SubAssign for Coordinate {
     fn sub_assign(&mut self, other: Coordinate) {
             self.horizontal_movement -= other.horizontal_movement;
             self.vertical_movement -= other.vertical_movement;
+    }
+}
+
+impl Ord for Coordinate {
+    fn cmp(&self, other: &Coordinate) -> Ordering {
+        (self.horizontal_movement, self.vertical_movement).cmp(&(other.horizontal_movement, other.vertical_movement))
+    }
+}
+
+impl PartialOrd for Coordinate {
+    fn partial_cmp(&self, other: &Coordinate) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Coordinate {
+    fn eq(&self, other: &Coordinate) -> bool {
+        (self.horizontal_movement, self.vertical_movement) == (other.horizontal_movement, other.vertical_movement)
     }
 }
