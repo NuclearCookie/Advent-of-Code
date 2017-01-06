@@ -1,4 +1,5 @@
 use coordinate::Coordinate;
+use std::collections::btree_set::BTreeSet;
 
 enum Direction {
     North,
@@ -9,9 +10,9 @@ enum Direction {
 
 pub struct Data {
     current_direction : Direction,
-    total_coordinates : Coordinate,
+    pub total_coordinates : Coordinate,
     current_coordinate : Coordinate,
-    visited_locations : Vec<Coordinate>
+    visited_locations : BTreeSet<Coordinate>
 }
 
 impl Data {
@@ -20,7 +21,7 @@ impl Data {
             current_direction : Direction::North,
             total_coordinates : Coordinate::new(),
             current_coordinate : Coordinate::new(),
-            visited_locations : Vec::new()
+            visited_locations : BTreeSet::new()
         }
     }
     pub fn update_current_direction( &mut self, new_direction : char ) {
@@ -51,20 +52,19 @@ impl Data {
             match self.current_direction {
                 Direction::North => {
                         self.current_coordinate.vertical_movement += 1;
-                        self.visited_locations.push(self.current_coordinate.clone());
                 },
                 Direction::South => {
                         self.current_coordinate.vertical_movement -= 1;
-                        self.visited_locations.push(self.current_coordinate.clone());
                 },
                 Direction::East => {
                         self.current_coordinate.horizontal_movement += 1;
-                        self.visited_locations.push(self.current_coordinate.clone());
                 },
                 Direction::West => {
                         self.current_coordinate.horizontal_movement -= 1;
-                        self.visited_locations.push(self.current_coordinate.clone());
                 },
+            }
+            if !self.visited_locations.insert(self.current_coordinate.clone()) {
+                println!("Intersection found at {} blocks away", Data::get_taxicab_coord_destination(&self.current_coordinate));
             }
         }
         // :NOTE: Why do I have to do this?
@@ -73,8 +73,7 @@ impl Data {
         self.total_coordinates += current_coordinate_copy - previous_coords;
     }
 
-    pub fn get_taxicab_coord_destination(&self) -> i32 {
-        let length = self.total_coordinates.horizontal_movement.abs() + self.total_coordinates.vertical_movement.abs();
-        length
+    pub fn get_taxicab_coord_destination(coordinate: & Coordinate) -> i32 {
+        coordinate.horizontal_movement.abs() + coordinate.vertical_movement.abs()
     }
 }

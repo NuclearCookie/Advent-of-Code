@@ -31,5 +31,5 @@ fn main() {
         } );
     }
 
-    println!("Final distance moved: {}", data.get_taxicab_coord_destination());
+    println!("Final distance moved: {}", Data::get_taxicab_coord_destination(&data.total_coordinates));
 }
