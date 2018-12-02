@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nuclearcookie/aoc2018/day1/day1-1/input"
+	"github.com/nuclearcookie/aoc2018/day1/input"
 )
 
 func main() {

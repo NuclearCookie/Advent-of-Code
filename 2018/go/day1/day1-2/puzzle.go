@@ -6,20 +6,33 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nuclearcookie/aoc2018/day1/day1-2/input"
+	"github.com/nuclearcookie/aoc2018/day1/input"
 )
 
-func main() {
-	data := input1.Get()
-	scanner := bufio.NewScanner(strings.NewReader(data))
+var frequency_map map[int]bool
 
-	result := 0
+func main() {
+	frequency_map = make(map[int]bool)
+	data := input1.Get()
+	frequency := 0
+
+	loop(data, frequency)
+}
+
+func loop(data string, frequency int) {
+	scanner := bufio.NewScanner(strings.NewReader(data))
 	for scanner.Scan() {
 		i, err := strconv.Atoi(scanner.Text())
 		if err != nil {
 			panic(err)
 		}
-		result += i
+		frequency += i
+		if frequency_map[frequency] {
+			fmt.Println("First duplicate frequency: ", frequency)
+			return
+		} else {
+			frequency_map[frequency] = true
+		}
 	}
-	fmt.Println("Total frequency offset: ", result)
+	loop(data, frequency)
 }
