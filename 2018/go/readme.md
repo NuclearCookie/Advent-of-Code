@@ -18,3 +18,4 @@ Another take at this language.
 ### Day 3
 
 1. : 18.68ms
+2. : 8.414ms
