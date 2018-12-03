@@ -17,5 +17,5 @@ Another take at this language.
 
 ### Day 3
 
-1. : 18.68ms
+1. : 6.37ms
 2. : 8.414ms

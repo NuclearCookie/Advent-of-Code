@@ -22,6 +22,7 @@ func (this *CutInfo) Set(id, left, top, width, height int) {
 }
 
 var squareInchInfo [1000][1000]int
+var nr_overlapping_squares int
 
 func main() {
 	start_time := time.Now()
@@ -37,11 +38,9 @@ func main() {
 		FillSquareInchInfo(&cut_info)
 	}
 
-	count := CountOverlappingInches()
-
 	duration := time.Since(start_time)
 	fmt.Printf("Duration: %s\n", duration)
-	fmt.Printf("Overlapping inches: %d", count)
+	fmt.Printf("Overlapping inches: %d", nr_overlapping_squares)
 }
 
 func Parse(data []string, c chan CutInfo) {
@@ -63,18 +62,9 @@ func FillSquareInchInfo(info *CutInfo) {
 	for x := info.left; x < info.left+info.width; x++ {
 		for y := info.top; y < info.top+info.height; y++ {
 			squareInchInfo[x][y]++
-		}
-	}
-}
-
-func CountOverlappingInches() int {
-	count := 0
-	for _, row := range squareInchInfo {
-		for _, elem := range row {
-			if elem > 1 {
-				count++
+			if squareInchInfo[x][y] == 2 {
+				nr_overlapping_squares++
 			}
 		}
 	}
-	return count
 }
