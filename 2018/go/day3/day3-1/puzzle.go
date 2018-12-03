@@ -26,9 +26,27 @@ var squareInchInfo [1000][1000]int
 func main() {
 	start_time := time.Now()
 	data := input.GetSplit()
-	cut_info := make([]CutInfo, len(data))
+	cut_infos := make([]CutInfo, len(data))
+	c := make(chan CutInfo, len(data))
+	go Parse(data, c)
+
+	i := 0
+	for cut_info := range c {
+		cut_infos[i] = cut_info
+		i++
+		FillSquareInchInfo(&cut_info)
+	}
+
+	count := CountOverlappingInches()
+
+	duration := time.Since(start_time)
+	fmt.Printf("Duration: %s\n", duration)
+	fmt.Printf("Overlapping inches: %d", count)
+}
+
+func Parse(data []string, c chan CutInfo) {
 	r := regexp.MustCompile("#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)")
-	for i, v := range data {
+	for _, v := range data {
 		matches := r.FindStringSubmatch(v)
 		// :TODO: regexp parse into CutInfo
 		id, _ := strconv.Atoi(matches[1])
@@ -36,10 +54,27 @@ func main() {
 		top, _ := strconv.Atoi(matches[3])
 		width, _ := strconv.Atoi(matches[4])
 		height, _ := strconv.Atoi(matches[5])
-		cut_info[i].Set(id, left, top, width, height)
+		c <- CutInfo{id, left, top, width, height}
 	}
-	fmt.Println(cut_info)
+	close(c)
+}
 
-	duration := time.Since(start_time)
-	fmt.Printf("Duration: %s\n", duration)
+func FillSquareInchInfo(info *CutInfo) {
+	for x := info.left; x < info.left+info.width; x++ {
+		for y := info.top; y < info.top+info.height; y++ {
+			squareInchInfo[x][y]++
+		}
+	}
+}
+
+func CountOverlappingInches() int {
+	count := 0
+	for _, row := range squareInchInfo {
+		for _, elem := range row {
+			if elem > 1 {
+				count++
+			}
+		}
+	}
+	return count
 }
