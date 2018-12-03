@@ -1,6 +1,6 @@
 package input
 
-import "github.com/nuclearcookie/aoc2018/utils"
+import "github.com/nuclearcookie/aoc2018/utils/strutils"
 
 func GetSplit() []string {
 	return strutils.SplitLines(`-1

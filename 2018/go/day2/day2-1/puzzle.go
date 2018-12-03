@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/nuclearcookie/aoc2018/day2/input"
-	"github.com/nuclearcookie/aoc2018/utils"
+	"github.com/nuclearcookie/aoc2018/utils/strutils"
 )
 
 var character_occurence map[rune]int
