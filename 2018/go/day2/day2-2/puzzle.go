@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nuclearcookie/aoc2018/day2/input"
 	"github.com/nuclearcookie/aoc2018/utils/sliceutils"
@@ -30,7 +31,9 @@ func main() {
 				result := append(chars_1[0:index_to_remove], chars_1[index_to_remove+1:]...)
 				result_str := string(result)
 
-				fmt.Printf("str1: %s, str2: %s, Common letters between matching boxes: %s", v1, data[i2], result_str)
+				duration := time.Since(start_time)
+				fmt.Printf("Duration: %s\n", duration)
+				fmt.Printf("str1: %s, str2: %s, Common letters between matching boxes: %s\n", v1, data[i2], result_str)
 				return
 			}
 		}

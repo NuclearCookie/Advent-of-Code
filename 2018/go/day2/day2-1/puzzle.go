@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nuclearcookie/aoc2018/day2/input"
 	"github.com/nuclearcookie/aoc2018/utils/strutils"
@@ -10,6 +11,7 @@ import (
 var character_occurence map[rune]int
 
 func main() {
+	start_time := time.Now()
 	data := input.GetSplit()
 	boxes_with_2_same_runes := 0
 	boxes_with_3_same_runes := 0
@@ -39,5 +41,7 @@ func main() {
 		}
 	}
 
+	duration := time.Since(start_time)
+	fmt.Printf("Duration: %s\n", duration)
 	fmt.Println("Checksum: ", boxes_with_2_same_runes*boxes_with_3_same_runes)
 }

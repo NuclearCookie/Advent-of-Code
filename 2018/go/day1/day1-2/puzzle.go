@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/nuclearcookie/aoc2018/day1/input"
 )
@@ -10,11 +11,14 @@ import (
 var frequency_map map[int]bool
 
 func main() {
+	start_time := time.Now()
 	frequency_map = make(map[int]bool)
 	data := input.GetSplit()
 	frequency := 0
 
 	loop(data, frequency)
+	duration := time.Since(start_time)
+	fmt.Printf("Duration: %s\n", duration)
 }
 
 func loop(data []string, frequency int) {
