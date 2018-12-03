@@ -1,7 +1,9 @@
-package input1
+package input
 
-func Get() string {
-	return `ivyhczwokexltwhsfamqprbnuy
+import "github.com/nuclearcookie/aoc2018/utils"
+
+func GetSplit() []string {
+	return strutils.SplitLines(`ivyhczwokexltwhsfamqprbnuy
 ivjhcjdokexltwwsfamqpabnuy
 ivjhczdokebltwgsfydqprbnuy
 ivjhcadokexftogsfamqprbnuy
@@ -250,5 +252,5 @@ ivjhczdokexltwgsfkmtprbnby
 ivjhnzdozexltwgsfamqprbnuc
 xqjxczdokexltwgsfamqprbnuy
 ivjhczdokeyltwgsfamqnrbnuw
-ivjwczgokexltwgsfamvprbnuy`
+ivjwczgokexltwgsfamvprbnuy`)
 }

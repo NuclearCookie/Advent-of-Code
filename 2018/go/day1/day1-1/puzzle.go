@@ -1,21 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/nuclearcookie/aoc2018/day1/input"
 )
 
 func main() {
-	data := input1.Get()
-	scanner := bufio.NewScanner(strings.NewReader(data))
-
+	data := input.GetSplit()
 	result := 0
-	for scanner.Scan() {
-		i, err := strconv.Atoi(scanner.Text())
+	for _, v := range data {
+		i, err := strconv.Atoi(v)
 		if err != nil {
 			panic(err)
 		}

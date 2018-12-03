@@ -1,7 +1,9 @@
-package input1
+package input
 
-func Get() string {
-	return `-1
+import "github.com/nuclearcookie/aoc2018/utils"
+
+func GetSplit() []string {
+	return strutils.SplitLines(`-1
 -19
 -7
 -2
@@ -1025,5 +1027,5 @@ func Get() string {
 +8
 -17
 -16
--80486`
+-80486`)
 }
