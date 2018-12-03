@@ -9,9 +9,10 @@ import (
 )
 
 func main() {
+	start_time := time.Now()
 	data := input.GetSplit()
 	for i1, v1 := range data {
-		for i2 := i1; i2 < len(data); i2++ {
+		for i2 := i1 + 1; i2 < len(data); i2++ {
 			chars_1 := strutils.SplitChars(v1)
 			chars_2 := strutils.SplitChars(data[i2])
 			diff := sliceutils.FilterRune(chars_1, func(index int, value rune) bool {
