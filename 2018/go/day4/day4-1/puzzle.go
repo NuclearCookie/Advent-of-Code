@@ -13,16 +13,14 @@ import (
 func main() {
 	startTime := time.Now()
 	data := input.GetSplit()
-	slice := eventSlice{make([]timeEvent, len(data))}
+	slice := make([]timeEvent, len(data))
 	c := make(chan timeEvent, len(data))
 	go parse(data, c)
 	i := 0
 	for event := range c {
-		slice.sortedEvents[i] = event
+		slice[i] = event
 		i++
 	}
-	sort.Sort(&slice)
-	fmt.Printf("%+v\n", slice.sortedEvents)
 	processGuardData(&slice)
 
 	duration := time.Since(startTime)
@@ -33,6 +31,8 @@ func parse(data []string, c chan timeEvent) {
 	r := regexp.MustCompile(`\[([0-9\- :]+)\] (.+)`)
 	guardIDRegex := regexp.MustCompile(`Guard #([0-9]+) begins shift`)
 	timeLayout := "2006-01-02 15:04"
+	sort.Strings(data)
+	fmt.Println(data)
 	for _, v := range data {
 		matches := r.FindStringSubmatch(v)
 		time, err := time.Parse(timeLayout, matches[1])
@@ -59,12 +59,13 @@ func parse(data []string, c chan timeEvent) {
 	close(c)
 }
 
-func processGuardData(slice *eventSlice) {
-	for _, v := range slice.sortedEvents {
+func processGuardData(slice *[]timeEvent) {
+	for _, v := range *slice {
 		switch t := v.(type) {
 		case toggleState:
+			fmt.Printf("Toggle state %t\n", t.awake)
 		case changeGuard:
-
+			fmt.Println("Change guard")
 		}
 	}
 }
