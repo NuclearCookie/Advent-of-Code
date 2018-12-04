@@ -22,5 +22,5 @@ Another take at this language.
 
 ### Day 4
 
-1. : 2.901ms
-2. : -
+1. : 2.112ms
+2. : 2.586ms
