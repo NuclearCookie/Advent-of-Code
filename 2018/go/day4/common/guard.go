@@ -100,7 +100,7 @@ func FindMostSleepyGuard(guards *map[int]Guard) Guard {
 	return sleepyHead
 }
 
-func FindMostSleepyMinute(sleepyHead *Guard) int {
+func FindMostSleepyMinute(sleepyHead *Guard) (int, int) {
 	maxTimesAsleep := 0
 	mostSleepyMinute := -1
 	for i, v := range sleepyHead.asleepTimes {
@@ -109,5 +109,5 @@ func FindMostSleepyMinute(sleepyHead *Guard) int {
 			mostSleepyMinute = i
 		}
 	}
-	return mostSleepyMinute
+	return mostSleepyMinute, maxTimesAsleep
 }

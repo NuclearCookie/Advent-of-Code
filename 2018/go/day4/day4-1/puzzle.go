@@ -13,7 +13,7 @@ func main() {
 	data := input.GetSplit()
 	guards := common.ProcessGuards(data)
 	sleepyHead := common.FindMostSleepyGuard(&guards)
-	mostSleepyMinute := common.FindMostSleepyMinute(&sleepyHead)
+	mostSleepyMinute, _ := common.FindMostSleepyMinute(&sleepyHead)
 
 	duration := time.Since(startTime)
 	fmt.Printf("Duration: %s\n", duration)
