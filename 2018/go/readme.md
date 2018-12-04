@@ -19,3 +19,8 @@ Another take at this language.
 
 1. : 6.37ms
 2. : 8.414ms
+
+### Day 4
+
+1. : 2.901ms
+2. : -

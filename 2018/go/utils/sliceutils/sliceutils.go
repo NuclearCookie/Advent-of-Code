@@ -19,3 +19,11 @@ func FilterRune(a []rune, f func(int, rune) bool) []rune {
 	}
 	return vsf
 }
+
+func SumInts(a []int) int {
+	count := 0
+	for _, v := range a {
+		count += v
+	}
+	return count
+}
