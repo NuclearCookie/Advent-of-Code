@@ -29,11 +29,15 @@ func main() {
 	var points []Point
 	maxX, maxY := parse(&points, &data)
 	grid := *plot(&points, maxX, maxY)
-	printGrid(&grid)
+	infiniteZones := getInfiniteZones(&grid)
+	// printGrid(&grid)
 	areaPerZone := make(map[int]int)
 	for _, row := range grid {
 		for _, v := range row {
-			areaPerZone[v.X]++
+			_, exists := infiniteZones[v.X]
+			if !exists {
+				areaPerZone[v.X]++
+			}
 		}
 	}
 	maxArea := 0
@@ -89,61 +93,28 @@ func findShortestManhattanDistance(points []Point, x, y int) Point {
 			shortest.Y = distanceToPoint
 		} else if distanceToPoint == shortest.Y {
 			shortest.X = -1
-			shortest.Y = -1
+			shortest.Y = distanceToPoint
 		}
 	}
 	return shortest
 }
 
-func expand(gridPtr *[][]Point, lengthX, lengthY int) {
-	breath := 0
-	for {
-		if expandWithBreath(gridPtr, lengthX, lengthY, breath) {
-			breath++
-		} else {
-			break
-		}
-	}
-}
-
-func expandWithBreath(gridPtr *[][]Point, lengthX, lengthY, breath int) bool {
+func getInfiniteZones(gridPtr *[][]Point) map[int]bool {
 	grid := *gridPtr
-	grew := false
-	checkElem := func(point, ref *Point) {
-		if point.X == 0 {
-			point.X = ref.X
-			point.Y = ref.Y + 1
-		} else if point.X != ref.X && point.Y == ref.Y+1 {
-			point.X = -1
-			point.Y = -1
-		} else {
-			return
-		}
-		grew = true
+	top := grid[0]
+	bottom := grid[len(grid)-1]
+	infiniteValues := make(map[int]bool)
+	for _, v := range grid {
+		infiniteValues[v[0].X] = true
+		infiniteValues[v[len(v)-1].X] = true
 	}
-	for i, row := range grid {
-		for j, v := range row {
-			if v.X != 0 && v.Y == breath {
-				if i > 0 {
-					elem := &grid[i-1][j]
-					checkElem(elem, &v)
-				}
-				if i < lengthX-1 {
-					elem := &grid[i+1][j]
-					checkElem(elem, &v)
-				}
-				if j > 0 {
-					elem := &grid[i][j-1]
-					checkElem(elem, &v)
-				}
-				if j < lengthY-1 {
-					elem := &grid[i][j+1]
-					checkElem(elem, &v)
-				}
-			}
-		}
+	for _, v := range top {
+		infiniteValues[v.X] = true
 	}
-	return grew
+	for _, v := range bottom {
+		infiniteValues[v.X] = true
+	}
+	return infiniteValues
 }
 
 func printGrid(grid *[][]Point) {
