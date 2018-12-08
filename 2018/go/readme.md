@@ -26,11 +26,11 @@ Another take at this language.
 2. : 2.586ms
 
 ### Day 5
-
+    
 1. : 37.064ms
 2. : 279.085ms
 
 ### Day 6
 
 1. : 27.926ms
-1. : 21.531ms
+1. : 14.1031ms

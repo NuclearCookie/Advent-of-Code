@@ -26,16 +26,8 @@ func main() {
 	data := input.GetSplit()
 	var points []Point
 	maxX, maxY := parse(&points, &data)
-	grid := *plot(&points, maxX, maxY)
-	// printGrid(&grid)
-	totalPointsWithinLimit := 0
-	for _, row := range grid {
-		for _, v := range row {
-			if v.Y < maxDistanceToAllPoints {
-				totalPointsWithinLimit++
-			}
-		}
-	}
+	totalPointsWithinLimit := plot(&points, maxX, maxY)
+
 	fmt.Printf("Total points within limit: %d\n", totalPointsWithinLimit)
 	duration := time.Since(startTime)
 	fmt.Printf("Duration: %s\n", duration)
@@ -57,30 +49,26 @@ func parse(points *[]Point, data *[]string) (int, int) {
 	return maxX + 1, maxY + 1
 }
 
-func plot(points *[]Point, maxX, maxY int) *[][]Point {
-	grid := make([][]Point, maxX)
-	for i := range grid {
-		grid[i] = make([]Point, maxY)
-		grid[i] = createRow(*points, grid[i], i, maxY)
+func plot(points *[]Point, maxX, maxY int) int {
+	totalPointsWithinLimit := 0
+	for i := 0; i < maxX; i++ {
+		for j := 0; j < maxY; j++ {
+			elem := findTotalManhattanDistance(points, i, j)
+			if elem < maxDistanceToAllPoints {
+				totalPointsWithinLimit++
+			}
+		}
 	}
-	return &grid
+	return totalPointsWithinLimit
 }
 
-func createRow(points, row []Point, i, maxY int) []Point {
-	row = make([]Point, maxY)
-	for j := range row {
-		row[j] = findTotalManhattanDistance(points, i, j)
-	}
-	return row
-}
-
-func findTotalManhattanDistance(points []Point, x, y int) Point {
-	summedPoint := Point{-1, 0}
-	for _, point := range points {
+func findTotalManhattanDistance(points *[]Point, x, y int) int {
+	summedDistance := 0
+	for _, point := range *points {
 		distanceToPoint := int(math.Abs(float64(point.X-x)) + math.Abs(float64(point.Y-y)))
-		summedPoint.Y += distanceToPoint
+		summedDistance += distanceToPoint
 	}
-	return summedPoint
+	return summedDistance
 }
 
 func printGrid(grid *[][]Point) {
