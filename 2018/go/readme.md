@@ -34,3 +34,7 @@ Another take at this language.
 
 1. : 27.926ms
 1. : 14.1031ms
+
+### Day 7
+ 
+ 1. : 611µs
