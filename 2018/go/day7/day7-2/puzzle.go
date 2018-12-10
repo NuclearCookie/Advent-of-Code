@@ -34,7 +34,7 @@ func main() {
 	startTime := time.Now()
 	instructions = make(map[int]*Instruction)
 	processedInstructions = make(map[int]bool, len(instructions))
-	workers = make([]Worker, 5)
+	workers = make([]Worker, 3)
 	data := input.GetSplit()
 	parse(data)
 	firstInstructions := findFirstInstructions()
@@ -73,15 +73,22 @@ func findFirstInstructions() []int {
 }
 
 func followInstructionsRecursive(potentiallyAvailableInstructions []int, order string) string {
-	worker := -1
+	var readyWorkers []*Worker
 	// :NOTE: workers need to start working at the same tim. Not possible with current design.
 	// Needs outer function to update the workers, then check to give work to all available workers.
-	for worker == -1 {
+	for readyWorkers == nil {
 		updateWorkers()
-		worker = getAvailableWorker()
-		availableWorker := workers[worker]
-		if availableWorker.timeRemaining == 0 && availableWorker.workingOnInstruction != 0 {
-			order += string(availableWorker.workingOnInstruction)
+		readyWorkers = getAvailableWorkers()
+		for _, v := range readyWorkers {
+			if v.timeRemaining == 0 && v.workingOnInstruction != 0 {
+				order += string(v.workingOnInstruction)
+				for _, v := range instructions[v.workingOnInstruction].After {
+					potentiallyAvailableInstructions = sliceutils.AppendIfMissing(potentiallyAvailableInstructions, v)
+					if len(potentiallyAvailableInstructions) == 0 {
+						return order
+					}
+				}
+			}
 		}
 	}
 	sort.Ints(potentiallyAvailableInstructions)
@@ -90,23 +97,19 @@ func followInstructionsRecursive(potentiallyAvailableInstructions []int, order s
 	for i, v := range potentiallyAvailableInstructions {
 		firstValidInstruction = v
 		processedIndex = i
-		if isValidInstruction(firstValidInstruction) {
-			processedInstructions[firstValidInstruction] = true
-			work(worker, firstValidInstruction)
-			break
+		if len(readyWorkers) > 0 {
+			if isValidInstruction(firstValidInstruction) {
+				processedInstructions[firstValidInstruction] = true
+				work(readyWorkers[0], firstValidInstruction)
+				readyWorkers = readyWorkers[1:]
+			}
 		}
 	}
 	// remove processed index
-	potentiallyAvailableInstructions = append(potentiallyAvailableInstructions[0:processedIndex], potentiallyAvailableInstructions[processedIndex+1:]...)
-	for _, v := range instructions[firstValidInstruction].After {
-		potentiallyAvailableInstructions = sliceutils.AppendIfMissing(potentiallyAvailableInstructions, v)
-
+	if len(potentiallyAvailableInstructions) > 0 {
+		potentiallyAvailableInstructions = append(potentiallyAvailableInstructions[0:processedIndex], potentiallyAvailableInstructions[processedIndex+1:]...)
 	}
-	if len(potentiallyAvailableInstructions) == 0 {
-		return order
-	} else {
-		return followInstructionsRecursive(potentiallyAvailableInstructions, order)
-	}
+	return followInstructionsRecursive(potentiallyAvailableInstructions, order)
 }
 
 func isValidInstruction(instruction int) bool {
@@ -126,21 +129,22 @@ func isValidInstruction(instruction int) bool {
 }
 
 func updateWorkers() {
-	for _, v := range workers {
-		v.timeRemaining--
+	for i := range workers {
+		workers[i].timeRemaining--
 	}
 	totalSeconds++
 }
-func getAvailableWorker() int {
+func getAvailableWorkers() []*Worker {
+	var result []*Worker
 	for i, v := range workers {
 		if v.timeRemaining <= 0 {
-			return i
+			result = append(result, &workers[i])
 		}
 	}
-	return -1
+	return result
 }
 
-func work(workerID, instruction int) {
-	workers[workerID].workingOnInstruction = instruction
-	workers[workerID].timeRemaining = instruction - 'A' + 1
+func work(worker *Worker, instruction int) {
+	worker.workingOnInstruction = instruction
+	worker.timeRemaining = instruction - 'A' + 1
 }
