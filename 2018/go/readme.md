@@ -38,3 +38,4 @@ Another take at this language.
 ### Day 7
  
  1. : 611µs
+ 2. : 2.249ms

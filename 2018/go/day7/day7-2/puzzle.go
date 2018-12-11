@@ -28,13 +28,14 @@ func (instruction *Instruction) AddAfter(afterRune int) {
 var instructions map[int]*Instruction
 var processedInstructions map[int]bool
 var workers []Worker
-var totalSeconds int
+var totalSeconds = -1
+var totalWorkers = 5
 
 func main() {
 	startTime := time.Now()
 	instructions = make(map[int]*Instruction)
 	processedInstructions = make(map[int]bool, len(instructions))
-	workers = make([]Worker, 3)
+	workers = make([]Worker, totalWorkers)
 	data := input.GetSplit()
 	parse(data)
 	firstInstructions := findFirstInstructions()
@@ -83,10 +84,10 @@ func followInstructionsRecursive(potentiallyAvailableInstructions []int, order s
 			if v.timeRemaining == 0 && v.workingOnInstruction != 0 {
 				order += string(v.workingOnInstruction)
 				for _, v := range instructions[v.workingOnInstruction].After {
-					potentiallyAvailableInstructions = sliceutils.AppendIfMissing(potentiallyAvailableInstructions, v)
-					if len(potentiallyAvailableInstructions) == 0 {
-						return order
-					}
+					potentiallyAvailableInstructions = sliceutils.Ints.AppendIfMissing(potentiallyAvailableInstructions, v)
+				}
+				if len(potentiallyAvailableInstructions) == 0 {
+					return order
 				}
 			}
 		}
@@ -94,6 +95,7 @@ func followInstructionsRecursive(potentiallyAvailableInstructions []int, order s
 	sort.Ints(potentiallyAvailableInstructions)
 	var firstValidInstruction int
 	var processedIndex int
+	var indicesToRemove []int
 	for i, v := range potentiallyAvailableInstructions {
 		firstValidInstruction = v
 		processedIndex = i
@@ -102,13 +104,17 @@ func followInstructionsRecursive(potentiallyAvailableInstructions []int, order s
 				processedInstructions[firstValidInstruction] = true
 				work(readyWorkers[0], firstValidInstruction)
 				readyWorkers = readyWorkers[1:]
+				indicesToRemove = append(indicesToRemove, processedIndex)
 			}
 		}
 	}
-	// remove processed index
-	if len(potentiallyAvailableInstructions) > 0 {
-		potentiallyAvailableInstructions = append(potentiallyAvailableInstructions[0:processedIndex], potentiallyAvailableInstructions[processedIndex+1:]...)
+
+	sort.Ints(indicesToRemove)
+	for i := len(indicesToRemove) - 1; i >= 0; i-- {
+		// for _, v := range indicesToRemove {
+		potentiallyAvailableInstructions = sliceutils.Ints.Remove(potentiallyAvailableInstructions, indicesToRemove[i])
 	}
+
 	return followInstructionsRecursive(potentiallyAvailableInstructions, order)
 }
 
@@ -122,6 +128,11 @@ func isValidInstruction(instruction int) bool {
 	for _, v := range currentInstruction.Before {
 		if _, exists := processedInstructions[v]; !exists {
 			return false
+		}
+		for _, worker := range workers {
+			if worker.workingOnInstruction == v && worker.timeRemaining > 0 {
+				return false
+			}
 		}
 	}
 
@@ -146,5 +157,5 @@ func getAvailableWorkers() []*Worker {
 
 func work(worker *Worker, instruction int) {
 	worker.workingOnInstruction = instruction
-	worker.timeRemaining = instruction - 'A' + 1
+	worker.timeRemaining = 60 + instruction - 'A' + 1
 }
