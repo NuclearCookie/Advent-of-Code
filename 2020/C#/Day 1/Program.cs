@@ -16,7 +16,8 @@ namespace Day_1
         {
             var data = File.ReadAllLines("Input/data.txt");
             var int_data = data.Select(x => int.Parse(x)).ToArray();
-
+            // It's much more likely to find a match in the lower numbers, presort for speed.
+            Array.Sort(int_data);
             Run("PART A", PartA, int_data);
             Run("PART A LINQ", PartALINQ, int_data);
             Run("PART B", PartB, int_data);
@@ -42,7 +43,6 @@ namespace Day_1
 
             var value1 = 0;
             var value2 = 0;
-            // how to extract Y... 
             int_data
                 .Where((x, i) =>
                 {
@@ -60,35 +60,16 @@ namespace Day_1
             WriteLine($"1: {value1} 2: {value2}. result: {value1 * value2}.");
         }
 
-        private static void PartA(int[] int_data)
+        private static void PartB(int[] int_data)
         {
-            WriteLine("PART A:");
+            WriteLine("PART B:");
             for (int i = 0; i < int_data.Length; ++i)
             {
                 var current = int_data[i];
                 for (int j = i + 1; j < int_data.Length; ++j)
                 {
                     var next = int_data[j];
-                    if (current + next == 2020)
-                    {
-                        WriteLine($"1: {current} 2: {next}. result: {current * next}.");
-                        return;
-                    }
-                }
-            }
-        }
-        private static void PartB(int[] int_data)
-        {
-            WriteLine("PART B:");
-            Array.Sort(int_data);
-            var ordered = int_data;
-            for (int i = 0; i < ordered.Length; ++i)
-            {
-                var current = int_data[i];
-                for (int j = i + 1; j < ordered.Length; ++j)
-                {
-                    var next = int_data[j];
-                    for (int k = j + 1; k < ordered.Length; ++k)
+                    for (int k = j + 1; k < int_data.Length; ++k)
                     {
                         var next_next = int_data[k];
                         if (current + next + next_next == 2020)
@@ -107,13 +88,12 @@ namespace Day_1
             var value1 = 0;
             var value2 = 0;
             var value3 = 0;
-            var ordered = int_data.OrderBy(x => x);
-            var result = ordered
+            var result = int_data
                 .Where((x, i) =>
                 {
-                    return ordered.Skip(i + 1).Where((y, j) =>
+                    return int_data.Skip(i + 1).Where((y, j) =>
                     {
-                        return ordered.Skip(j + 1).Where((z) =>
+                        return int_data.Skip(j + 1).Where((z) =>
                         {
                             if (x + y + z == 2020)
                             {
