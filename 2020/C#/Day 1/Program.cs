@@ -35,7 +35,25 @@ namespace Day_1
             watch.Stop();
             Console.WriteLine($"{identifier} Time: {watch.ElapsedMilliseconds}");
 #endif
- }
+         }
+
+        private static void PartA(int[] int_data)
+        {
+            WriteLine("PART A:");
+            for (int i = 0; i < int_data.Length; ++i)
+            {
+                var current = int_data[i];
+                for (int j = i + 1; j < int_data.Length; ++j)
+                {
+                    var next = int_data[j];
+                    if (current + next == 2020)
+                    {
+                        WriteLine($"1: {current} 2: {next}. result: {current * next}.");
+                        return;
+                    }
+                }
+            }
+        }
 
         private static void PartALINQ(int[] int_data)
         {
@@ -81,6 +99,7 @@ namespace Day_1
                }
             }
         }    
+
         private static void PartBLINQ(int[] int_data)
         {
             WriteLine("PART B (LINQ):");
@@ -108,7 +127,6 @@ namespace Day_1
                 }).First();
             WriteLine($"1: {value1} 2: {value2} 3: {value3}. result: {value1 * value2 * value3}.");
         }
-
 
         [Conditional("NO_PROFILING")]
         private static void WriteLine(string line)
