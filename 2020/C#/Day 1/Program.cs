@@ -26,7 +26,7 @@ namespace Day_1
                     if (current + next == 2020)
                     {
                         Console.WriteLine($"1: {current} 2: {next}. result: {current * next}");
-                        break;
+                        return;
                     }
                 }
             }
@@ -34,7 +34,8 @@ namespace Day_1
         private static void PartB(int[] int_data)
         {
             Console.WriteLine("PART B:");
-            var ordered = int_data.OrderBy(x => x).ToArray();
+            Array.Sort(int_data);
+            var ordered = int_data;
             for (int i = 0; i < ordered.Length; ++i)
             {
                 var current = int_data[i];
@@ -47,7 +48,7 @@ namespace Day_1
                         if (current + next + next_next == 2020)
                         {
                             Console.WriteLine($"1: {current} 2: {next} 3: {next_next}. result: {current * next * next_next}");
-                            break;
+                            return;
                         }
                      }
                }
