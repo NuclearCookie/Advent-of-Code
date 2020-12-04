@@ -48,6 +48,7 @@ namespace Day_4
 
             Console.WriteLine($"Valid records: {valid_records}");
         }
+
         private static void PartB(string[] records)
         {
             Console.WriteLine("Part B:");
@@ -58,86 +59,92 @@ namespace Day_4
                                 var valid_fields = Fields.None;
                                 foreach (var segment in data)
                                 {
+                                    // Can't use span because switch case doesn't like that.
                                     var identifier = segment.Substring(0, 4);
-                                    var segment_data = segment.Substring(4).Trim();
+                                    var segment_data = segment.AsSpan().Slice(start: 4);
                                     switch (identifier)
                                     {
                                         case "byr:":
-                                        {
-                                            if (int.TryParse(segment_data, out int year))
                                             {
-                                                if (year >= 1920 && year <= 2002)
+                                                if (int.TryParse(segment_data, out int year))
                                                 {
-                                                    valid_fields |= Fields.BirthYear;
+                                                    if (year >= 1920 && year <= 2002)
+                                                    {
+                                                        valid_fields |= Fields.BirthYear;
+                                                    }
                                                 }
                                             }
-                                        }
-                                        break;
+                                            break;
                                         case "iyr:":
-                                        {
-                                            if (int.TryParse(segment_data, out int year))
                                             {
-                                                if (year >= 2010 && year <= 2020)
+                                                if (int.TryParse(segment_data, out int year))
                                                 {
-                                                    valid_fields |= Fields.IssueYear;
+                                                    if (year >= 2010 && year <= 2020)
+                                                    {
+                                                        valid_fields |= Fields.IssueYear;
+                                                    }
                                                 }
                                             }
-                                        }
-                                        break;
+                                            break;
                                         case "eyr:":
-                                        {
-                                            if (int.TryParse(segment_data, out int year))
                                             {
-                                                if (year >= 2020 && year <= 2030)
+                                                if (int.TryParse(segment_data, out int year))
                                                 {
-                                                    valid_fields |= Fields.ExpirationYear;
+                                                    if (year >= 2020 && year <= 2030)
+                                                    {
+                                                        valid_fields |= Fields.ExpirationYear;
+                                                    }
                                                 }
+
                                             }
- 
-                                        }
-                                        break;
+                                            break;
                                         case "hgt:":
-                                        {
-                                            var unit = segment_data.Substring(segment_data.Length - 2);
-                                            var height_str = segment_data.Substring(0, segment_data.Length - 2);
-                                            if (unit == "cm")
                                             {
-                                                if (int.TryParse(height_str, out int height))
+                                                var unit = segment_data.Slice(start: segment_data.Length - 2);
+                                                var height_str = segment_data.Slice(0, segment_data.Length - 2);
+                                                if (unit.Equals("cm", StringComparison.Ordinal))
                                                 {
-                                                    if (height >= 150 && height <= 193)
+                                                    if (int.TryParse(height_str, out int height))
                                                     {
-                                                        valid_fields |= Fields.Height;
+                                                        if (height >= 150 && height <= 193)
+                                                        {
+                                                            valid_fields |= Fields.Height;
+                                                        }
+                                                    }
+                                                }
+                                                else if (unit.Equals("in", StringComparison.Ordinal))
+                                                {
+                                                    if (int.TryParse(height_str, out int height))
+                                                    {
+                                                        if (height >= 59 && height <= 76)
+                                                        {
+                                                            valid_fields |= Fields.Height;
+                                                        }
                                                     }
                                                 }
                                             }
-                                            else if (unit == "in")
-                                            {
-                                                if (int.TryParse(height_str, out int height))
-                                                {
-                                                    if (height >= 59 && height <= 76)
-                                                    {
-                                                        valid_fields |= Fields.Height;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        break;
+                                            break;
                                         case "hcl:":
-                                        { 
-                                            if (segment_data.StartsWith('#') && segment_data.Length == 7)
                                             {
-                                                var color = segment_data.Substring(1);
-                                                if (int.TryParse(color, System.Globalization.NumberStyles.HexNumber, null, out var color_int))
+                                                if (segment_data[0] == '#' && segment_data.Length == 7)
                                                 {
-                                                    valid_fields |= Fields.HairColor;
+                                                    var color = segment_data.Slice(start: 1);
+                                                    if (int.TryParse(color, System.Globalization.NumberStyles.HexNumber, null, out var color_int))
+                                                    {
+                                                        valid_fields |= Fields.HairColor;
+                                                    }
                                                 }
                                             }
-                                        }
-                                        break;
+                                            break;
                                         case "ecl:":
                                             {
-                                                if (segment_data == "amb" || segment_data == "blu" || segment_data == "brn"
-                                                    || segment_data == "gry" || segment_data == "grn" || segment_data == "hzl" || segment_data == "oth")
+                                                if (segment_data.Equals("amb", StringComparison.Ordinal) 
+                                                    || segment_data.Equals("blu", StringComparison.Ordinal) 
+                                                    || segment_data.Equals("brn", StringComparison.Ordinal)
+                                                    || segment_data.Equals("gry", StringComparison.Ordinal) 
+                                                    || segment_data.Equals("grn", StringComparison.Ordinal)
+                                                    || segment_data.Equals("hzl", StringComparison.Ordinal) 
+                                                    || segment_data.Equals("oth", StringComparison.Ordinal))
                                                 {
                                                     valid_fields |= Fields.EyeColor;
                                                 }
