@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -48,6 +49,8 @@ namespace Day_4
 
             Console.WriteLine($"Valid records: {valid_records}");
         }
+
+        private static string[] valid_colors = new string[] { "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
 
         private static void PartB(string[] records)
         {
@@ -138,15 +141,13 @@ namespace Day_4
                                             break;
                                         case "ecl:":
                                             {
-                                                if (segment_data.Equals("amb", StringComparison.Ordinal) 
-                                                    || segment_data.Equals("blu", StringComparison.Ordinal) 
-                                                    || segment_data.Equals("brn", StringComparison.Ordinal)
-                                                    || segment_data.Equals("gry", StringComparison.Ordinal) 
-                                                    || segment_data.Equals("grn", StringComparison.Ordinal)
-                                                    || segment_data.Equals("hzl", StringComparison.Ordinal) 
-                                                    || segment_data.Equals("oth", StringComparison.Ordinal))
+                                                foreach(var valid_value in valid_colors)
                                                 {
-                                                    valid_fields |= Fields.EyeColor;
+                                                    if (segment_data.Equals(valid_value, StringComparison.Ordinal))
+                                                    {
+                                                        valid_fields |= Fields.EyeColor;
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             break;
