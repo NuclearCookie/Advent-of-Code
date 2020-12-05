@@ -6,8 +6,4 @@
     <RootNamespace>Day_5</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NUnit" Version="3.12.0" />
-  </ItemGroup>
-
 </Project>
