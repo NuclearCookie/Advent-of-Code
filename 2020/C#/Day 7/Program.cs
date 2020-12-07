@@ -56,7 +56,7 @@ namespace Day_7
                 result -= 1;
                 return result;
             }
-            public int CountChildBagsRecursiveInternal()
+            private int CountChildBagsRecursiveInternal()
             {
                 if (contents == null)
                     return 1;
