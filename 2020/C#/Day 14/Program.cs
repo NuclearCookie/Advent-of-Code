@@ -110,7 +110,8 @@ namespace Day_14
         private static void AddFloatingPermutation(in Dictionary<ulong, ulong> memoryTable, in ulong floating_mask, in ulong value, ulong index, int bit_i)
         {
 #if DEBUG_LOG
-            Console.WriteLine($"{Convert.ToString((long)index, 2).PadLeft(36, '0')} (decimal {index})");
+            if (!memoryTable.TryGetValue(index, out var cached_value) || cached_value != value)
+                Console.WriteLine($"{Convert.ToString((long)index, 2).PadLeft(36, '0')} (decimal {index})");
 #endif
             memoryTable[index] = value;
             for (; bit_i < 36; ++bit_i)
