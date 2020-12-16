@@ -38,6 +38,7 @@ namespace Day_15
             Console.WriteLine("Part B:");
             var start_input = input.Split(',');
             var numbers_map = start_input.Select((x, i) => (number: int.Parse(x), index: i)).ToDictionary(x => x.number, x => x.index);
+            numbers_map.EnsureCapacity(4000000);
             var start_index = start_input.Length;
             var last_spoken_number = Play(numbers_map, start_index, 30000000);
             Console.WriteLine($"The 30000000th spoken number is {last_spoken_number}");
