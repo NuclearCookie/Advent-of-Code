@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Day_17
 {
@@ -33,7 +36,12 @@ namespace Day_17
     class Dimension4D
     {
         private bool[,,,] Plane;
+        private int count;
 
+        public Dimension4D(int dimension_size)
+        {
+            Plane = new bool[dimension_size, dimension_size, dimension_size, dimension_size];
+        }
         public Dimension4D(bool[,,,] plane)
         {
             Plane = new bool[plane.GetLength(0), plane.GetLength(1), plane.GetLength(2), plane.GetLength(3)];
@@ -64,20 +72,29 @@ namespace Day_17
 
         public int CountActiveFields()
         {
-            var active_neighbours_query = from bool coord in Plane
-                                          where coord == true
-                                          select coord;
-            return active_neighbours_query.Count();
+            var count = 0;
+            foreach(var field in Plane)
+            {
+                if (field) count++;
+            }
+            return count;
         }
 
         public Dimension4D Process()
         {
             var result = new Dimension4D(Plane, 1);
             // process the expanded plane, 
-            for (int z = -1; z < Plane.GetLength(2) + 1; ++z)
-                for (int x = -1; x < Plane.GetLength(0) + 1; ++x)
-                    for (int y = -1; y < Plane.GetLength(1) + 1; ++y)
-                        for (int w = -1; w < Plane.GetLength(3) + 1; ++w)
+            int x_length = Plane.GetLength(0) + 1;
+            int y_length = Plane.GetLength(1) + 1;
+            int z_length = Plane.GetLength(2) + 1;
+            int w_length = Plane.GetLength(3) + 1;
+            Parallel.For(-1, z_length, (z) =>
+            {
+                Parallel.For(-1, x_length, (x) =>
+                {
+                    Parallel.For(-1, y_length, (y) =>
+                    {
+                        Parallel.For(-1, w_length, (w) =>
                         {
                             var window_dimension = GetNeighbourhoodDimension(new Coord4D { X = x, Y = y, Z = z, W = w });
                             var state = window_dimension.Plane[1, 1, 1, 1];
@@ -87,32 +104,53 @@ namespace Day_17
                             {
                                 result.SetValue(!state, new Coord4D { X = x, Y = y, Z = z, W = w }, expand_amount: 1);
                             }
-                        }
+                        });
+                    });
+                });
+            });
+
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         Dimension4D GetNeighbourhoodDimension(Coord4D center)
         {
-            var result = new Dimension4D(new bool[3, 3, 3, 3]);
-            for (int result_x = 0; result_x < result.Plane.GetLength(0); ++result_x)
-                for (int result_y = 0; result_y < result.Plane.GetLength(1); ++result_y)
-                    for (int result_z = 0; result_z < result.Plane.GetLength(2); ++result_z)
-                        for (int result_w = 0; result_w < result.Plane.GetLength(3); ++result_w)
+            var window_dimension = new Dimension4D(3);
+            int x_window_length = window_dimension.Plane.GetLength(0);
+            int x_plane_length = Plane.GetLength(0);
+            int y_window_length = window_dimension.Plane.GetLength(1);
+            int y_plane_length = Plane.GetLength(1);
+            int z_window_length = window_dimension.Plane.GetLength(2);
+            int z_plane_length = Plane.GetLength(2);
+            int w_window_length = window_dimension.Plane.GetLength(3);
+            int w_plane_length = Plane.GetLength(3);
+            for (int result_x = 0; result_x < x_window_length; ++result_x)
+            {
+                var plane_x = center.X - 1 + result_x;
+                if (plane_x < 0 || plane_x >= x_plane_length)
+                    continue;
+                for (int result_y = 0; result_y < y_window_length; ++result_y)
+                {
+                    var plane_y = center.Y - 1 + result_y;
+                    if (plane_y < 0 || plane_y >= y_plane_length)
+                        continue;
+                    for (int result_z = 0; result_z < z_window_length; ++result_z)
+                    {
+                        var plane_z = center.Z - 1 + result_z;
+                        if (plane_z < 0 || plane_z >= z_plane_length)
+                            continue;
+                        for (int result_w = 0; result_w < w_window_length; ++result_w)
                         {
-                            var plane_x = center.X - 1 + result_x;
-                            var plane_y = center.Y - 1 + result_y;
-                            var plane_z = center.Z - 1 + result_z;
                             var plane_w = center.W - 1 + result_w;
-                            var result_xyzw = false;
-                            if (!(plane_x < 0 || plane_y < 0 || plane_z < 0 || plane_w < 0
-                                || plane_x >= Plane.GetLength(0) || plane_y >= Plane.GetLength(1) || plane_z >= Plane.GetLength(2) || plane_w >= Plane.GetLength(3)))
-                            {
-                                result_xyzw = Plane[plane_x, plane_y, plane_z, plane_w];
-                            }
+                            if (plane_w < 0 || plane_w >= w_plane_length)
+                                continue;
 
-                            result.Plane[result_x, result_y, result_z, result_w] = result_xyzw;
+                            window_dimension.Plane[result_x, result_y, result_z, result_w] = Plane[plane_x, plane_y, plane_z, plane_w];
                         }
-            return result;
+                    }
+                }
+            }
+            return window_dimension;
         }
 
         public override string ToString()
@@ -144,6 +182,10 @@ namespace Day_17
     {
         private bool[,,] Plane;
 
+        public Dimension3D(int dimension_size)
+        {
+            Plane = new bool[dimension_size, dimension_size, dimension_size];
+        }
         public Dimension3D(bool[,,] plane)
         {
             Plane = new bool[plane.GetLength(0), plane.GetLength(1), plane.GetLength(2)];
@@ -168,19 +210,23 @@ namespace Day_17
 
         public int CountActiveFields()
         {
-            var active_neighbours_query = from bool coord in Plane 
-                                          where coord == true 
-                                          select coord;
-            return active_neighbours_query.Count();
+            var count = 0;
+            foreach(var field in Plane)
+            {
+                if (field) count++;
+            }
+            return count;
         }
 
         public Dimension3D Process()
         {
             var result = new Dimension3D(Plane, 1);
             // process the expanded plane, 
-            for(int z = -1; z < Plane.GetLength(2) + 1; ++z)
-                for(int x = -1; x < Plane.GetLength(0) + 1; ++x)
-                    for(int y = -1; y < Plane.GetLength(1) + 1; ++y)
+            Parallel.For(-1, Plane.GetLength(2) + 1, (z) =>
+            {
+                Parallel.For(-1, Plane.GetLength(0) + 1, (x) =>
+                {
+                    Parallel.For(-1, Plane.GetLength(1) + 1, (y) =>
                     {
                         var window_dimension = GetNeighbourhoodDimension(new Coord3D { X = x, Y = y, Z = z });
                         var state = window_dimension.Plane[1, 1, 1];
@@ -190,30 +236,42 @@ namespace Day_17
                         {
                             result.SetValue(!state, new Coord3D { X = x, Y = y, Z = z }, expand_amount: 1);
                         }
-                    }
+                    });
+                });
+            });
             return result;
         }
 
         Dimension3D GetNeighbourhoodDimension(Coord3D center)
         {
-            var result = new Dimension3D(new bool[3, 3, 3]);
-            for(int result_x = 0; result_x < result.Plane.GetLength(0); ++result_x)
-               for(int result_y = 0; result_y < result.Plane.GetLength(1); ++result_y)
-                   for(int result_z = 0; result_z < result.Plane.GetLength(2); ++result_z)
-                   {
-                       var plane_x = center.X - 1 + result_x;
-                       var plane_y = center.Y - 1 + result_y;
-                       var plane_z = center.Z - 1 + result_z;
-                       var result_xyz = false;
-                       if (!(plane_x < 0 || plane_y < 0 || plane_z < 0
-                           || plane_x >= Plane.GetLength(0) || plane_y >= Plane.GetLength(1) || plane_z >= Plane.GetLength(2)))
-                       {
-                            result_xyz = Plane[plane_x, plane_y, plane_z];
-                       }
-                           
-                       result.Plane[result_x, result_y, result_z] = result_xyz;
-                   }
-            return result;
+            var neighbour_dimension = new Dimension3D(3);
+            int x_window_length = neighbour_dimension.Plane.GetLength(0);
+            int x_plane_length = Plane.GetLength(0);
+            int y_window_length = neighbour_dimension.Plane.GetLength(1);
+            int y_plane_length = Plane.GetLength(1);
+            int z_window_length = neighbour_dimension.Plane.GetLength(2);
+            int z_plane_length = Plane.GetLength(2);
+            for (int result_x = 0; result_x < x_window_length; ++result_x)
+            {
+                var plane_x = center.X - 1 + result_x;
+                if (plane_x < 0 || plane_x >= x_plane_length)
+                    continue;
+                for (int result_y = 0; result_y < y_window_length; ++result_y)
+                {
+                    var plane_y = center.Y - 1 + result_y;
+                    if (plane_y < 0 || plane_y >= y_plane_length)
+                        continue;
+                    for (int result_z = 0; result_z < z_window_length; ++result_z)
+                    {
+                        var plane_z = center.Z - 1 + result_z;
+                        if (plane_z < 0 || plane_z >= z_plane_length)
+                            continue;
+
+                        neighbour_dimension.Plane[result_x, result_y, result_z] = Plane[plane_x, plane_y, plane_z];
+                    }
+                }
+            }
+            return neighbour_dimension;
         }
 
         public override string ToString()
@@ -241,6 +299,8 @@ namespace Day_17
     {
         static void Main(string[] args)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             var input = File.ReadAllLines("Input/data.txt");
             var steps = 6;
             var input_plane_3d = new bool[input[0].Length, input.Length, 1];
@@ -255,9 +315,20 @@ namespace Day_17
                     input_plane_4d[x, y, 0, 0] = element == '#';
                 }
             }
+            stopwatch.Stop();
+            Console.WriteLine($"Setup time: {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Reset();
+            stopwatch.Start();
             PartA(input_plane_3d);
+            stopwatch.Stop();
+            Console.WriteLine($"time: {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Reset();
+            stopwatch.Start();
             PartB(input_plane_4d);
-        }
+            stopwatch.Stop();
+            Console.WriteLine($"time: {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Reset();
+}
 
         private static void PartA(bool[,,] input_plane_3d)
         {
