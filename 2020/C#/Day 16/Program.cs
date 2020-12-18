@@ -56,6 +56,8 @@ namespace Day_16
         private static Regex ticketEntryRegex = new Regex(@"(?'id'[\w| ]+): (?'lb1'[\d]+)-(?'ub1'[\d]+) or (?'lb2'[\d]+)-(?'ub2'[\d]+)");
         static void Main(string[] args)
         {
+            var timer = new Stopwatch();
+            timer.Start();
             var data_groups = File.ReadAllText("Input/data.txt").Split(Environment.NewLine + Environment.NewLine);
             var ticket_fields = data_groups[0].Split(Environment.NewLine);
             var my_ticket = data_groups[1].Split(Environment.NewLine)[1].Split(',').Select(x => int.Parse(x)).ToArray();
@@ -74,8 +76,18 @@ namespace Day_16
                     Bounds2 = new Bounds { Min = int.Parse(groups["lb2"].Value), Max = int.Parse(groups["ub2"].Value) },
                 };
             }
+            timer.Stop();
+            Console.WriteLine($"Setup time: {timer.ElapsedMilliseconds}ms");
+            timer.Reset();
+            timer.Start();
             PartA(nearby_tickets, ticket_entries);
+            timer.Stop();
+            Console.WriteLine($"Part A time: {timer.ElapsedMilliseconds}ms");
+            timer.Reset();
+            timer.Start();
             PartB(my_ticket, nearby_tickets, ticket_entries);
+            timer.Stop();
+            Console.WriteLine($"Part B time: {timer.ElapsedMilliseconds}ms");
         }
 
         private static void PartA(int[][] nearby_tickets, TicketEntry[] ticket_entries)
