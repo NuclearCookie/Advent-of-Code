@@ -10,8 +10,16 @@ namespace Day_18
         static void Main(string[] args)
         {
             var input = File.ReadAllLines("Input/data.txt");
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             PartA(input);
+            stopwatch.Stop();
+            Console.WriteLine($"Duration: {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Reset();
+            stopwatch.Start();
             PartB(input);
+            stopwatch.Stop();
+            Console.WriteLine($"Duration: {stopwatch.ElapsedMilliseconds}ms");
         }
 
         private static void PartA(string[] input)
@@ -20,7 +28,7 @@ namespace Day_18
             var results = new long[input.Length];
             for (int i = 0; i < input.Length; i++)
             {
-                string expression = input[i];
+                string expression = input[i].Replace(" ", string.Empty);
                 var result = ProcessExpression(expression.AsSpan(), out var end_index, with_operator_precedence: false);
                 //Console.WriteLine($"Solution: {result}");
                 results[i] = result;
@@ -35,7 +43,7 @@ namespace Day_18
             var results = new long[input.Length];
             for (int i = 0; i < input.Length; i++)
             {
-                string expression = input[i];
+                string expression = input[i].Replace(" ", string.Empty);
                 var result = ProcessExpression(expression.AsSpan(), out var end_index, with_operator_precedence: true);
                 //Console.WriteLine($"Solution: {result}");
                 results[i] = result;
@@ -79,9 +87,7 @@ namespace Day_18
             {
                 var character = readOnlySpan[current_index];
                 current_index++;
-                if (character == ' ')
-                    continue;
-                else if (character == '(')
+                if (character == '(')
                 {
                     var result = ProcessExpression(readOnlySpan.Slice(current_index), out var sub_end_index, with_operator_precedence);
                     // skip the closing ) character
