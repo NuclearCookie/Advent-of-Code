@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,17 +10,46 @@ namespace Day_19
     class Rule
     {
         public Rule[][] Branches;
+        private HashSet<string> Possibilities;
+
         public string Value { get; set; }
 
-        private HashSet<string> Possibilities;
-        
-        public bool Matches(string value, int max_depth)
+
+        public int PossibilitySize => Possibilities == null ? -1 : Possibilities.First().Length;
+
+        public bool HasFiniteResults()
         {
-            ComputeValuesRecursiveWithCache(max_depth);
+            if (Branches == null)
+                return true;
+
+            for(int i = 0; i < Branches.Length; ++i)
+            {
+                var branch = Branches[i];
+                if (branch.Contains(this))
+                    return false;
+                for(int j = 0; j < branch.Length; ++j)
+                {
+                    if (!branch[j].HasFiniteResults())
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        
+        public bool Matches(string value)
+        {
+            var cur_index = 0;
+            // prime cache. This will skip the recursive calls
+            ComputeValuesRecursiveWithCache();
+
+            //ComputeValuesDepthFirstWithCache(ref cur_index, max_depth, value);
             return Possibilities.Contains(value);
         }
 
-        private HashSet<string> ComputeValuesRecursiveWithCache(int max_depth)
+        public HashSet<string> ComputeValuesRecursiveWithCache()
         {
             if (Possibilities != null)
                 return Possibilities;
@@ -32,12 +62,13 @@ namespace Day_19
                 return result;
             }
 
-            foreach(var branch in Branches)
+            for (int i = 0; i < Branches.Length; i++)
             {
+                Rule[] branch = Branches[i];
                 var branch_results = new HashSet<string>();
                 foreach(var rule in branch)
                 {
-                    var values = rule.ComputeValuesRecursiveWithCache(max_depth);
+                    var values = rule.ComputeValuesRecursiveWithCache();
                     if (branch_results.Count == 0)
                     {
                         branch_results = values;
@@ -50,15 +81,7 @@ namespace Day_19
                             foreach (var value in values)
                             {
                                 string new_value = entry + value;
-                                if (new_value.Length > max_depth)
-                                {
-                                    // too deep... don't count these and just return from this branch.
-                                    return new HashSet<string>();
-                                }
-                                else
-                                {
-                                    new_result.Add(new_value);
-                                }
+                                new_result.Add(new_value);
                             }
                         }
                         branch_results = new_result;
@@ -77,7 +100,7 @@ namespace Day_19
 
         static void Main(string[] args)
         {
-            //PartA();
+            PartA();
             PartB();
         }
 
@@ -91,23 +114,79 @@ namespace Day_19
             var resolved_rules = ResolveRules(rules);
 
             var rule_to_match = resolved_rules[0];
-            var matching_messages = messages.Where(message => rule_to_match.Matches(message, int.MaxValue)).Count();
+            var matching_messages = messages.Where(message => rule_to_match.Matches(message)).Count();
             Console.WriteLine($"Matching messages: {matching_messages}");
         }
 
         private static void PartB()
         {
             Console.WriteLine("Part B:");
-            var input = File.ReadAllText("Input/test2.txt").Split(Environment.NewLine + Environment.NewLine);
+            var input = File.ReadAllText("Input/data2.txt").Split(Environment.NewLine + Environment.NewLine);
             var rules = input[0].Split(Environment.NewLine);
             var messages = input[1].Split(Environment.NewLine);
 
             var resolved_rules = ResolveRules(rules);
+            foreach(var kvp in resolved_rules)
+            {
+                var rule = kvp.Value;
+                if (rule.HasFiniteResults())
+                {
+                    rule.ComputeValuesRecursiveWithCache();
+                }
+            }
+            // rule 0 == 8 11,
+            // rule 8 = 42 | 42 8
+            // rule 11 = 42 31 | 42 11 31
+            // all matches must be a plural of the length of a possibility of rule 42 or 31.
+            // solutions will always be 42 + (x*42, x*31). 
+            // start backwards and count occurences of 31, if no longer 31, it must be 42 and total count of 42 must be > 31.
 
-            var rule_to_match = resolved_rules[0];
-            var highest_char_count = messages.OrderBy(message => message.Length).Last().Length;
-            var matching_messages = messages.Where(message => rule_to_match.Matches(message, highest_char_count)).Count();
-            Console.WriteLine($"Matching messages: {matching_messages}");
+            var rule_42 = resolved_rules[42];
+            var rule_31 = resolved_rules[31];
+            var chunck_count = rule_42.PossibilitySize;
+            Debug.Assert(chunck_count == rule_31.PossibilitySize);
+
+            var matching_messages = new List<string>();
+            foreach(var message in messages)
+            {
+                bool is_valid = true;
+                var iterations = message.Length / chunck_count;
+                var sections_31 = 0;
+                bool past_section_31 = false;
+                for(int i = iterations - 1; i >= 0; --i)
+                {
+                    var section = message.Substring(i * chunck_count, chunck_count);
+                    if (rule_31.Matches(section))
+                    {
+                        if (past_section_31)
+                        {
+                            is_valid = false;
+                            break;
+                        }
+                        sections_31++;
+                    }
+                    else if (rule_42.Matches(section))
+                    {
+                        if (!past_section_31 && sections_31 <= 0)
+                        {
+                            is_valid = false;
+                            break;
+                        }
+                        past_section_31 = true;
+                        sections_31--;
+                    }
+                    else
+                    {
+                        is_valid = false;
+                        break;
+                    }
+                }
+                if (sections_31 < 0 && is_valid)
+                {
+                    matching_messages.Add(message);
+                }
+            }
+            Console.WriteLine($"Lines that match: {matching_messages.Count}");
         }
         private static Dictionary<int, Rule> ResolveRules(string[] rules)
         {
