@@ -41,7 +41,6 @@ namespace Day_19
         
         public bool Matches(string value)
         {
-            var cur_index = 0;
             // prime cache. This will skip the recursive calls
             ComputeValuesRecursiveWithCache();
 
