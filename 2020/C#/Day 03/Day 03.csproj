@@ -6,4 +6,14 @@
     <RootNamespace>Day_03</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Input\data.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Input\data.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
