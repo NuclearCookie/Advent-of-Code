@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Day_07</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Input\data.txt" />
+    <None Remove="Input\partatest.txt" />
+    <None Remove="Input\partbtest.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Input\data.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Input\partatest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Input\partbtest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
