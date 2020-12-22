@@ -1,0 +1,6 @@
+[package]
+name = "star1"
+version = "0.1.0"
+authors = ["Pieter Vantorre <pieter.vantorre@fishingcactus.com>"]
+
+[dependencies]
