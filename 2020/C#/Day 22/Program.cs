@@ -11,8 +11,16 @@ namespace Day_22
         static void Main(string[] args)
         {
             var decks = File.ReadAllText("Input/data.txt").Split(Environment.NewLine + Environment.NewLine);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             PartA(decks);
+            stopwatch.Stop();
+            Console.WriteLine($"duration {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Reset();
+            stopwatch.Start();
             PartB(decks);
+            stopwatch.Stop();
+            Console.WriteLine($"duration {stopwatch.ElapsedMilliseconds}ms");
         }
 
         private static void PartA(string[] decks)
