@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Test": {
+      "commandName": "Project",
+      "commandLineArgs": "Input/test.txt"
+    },
+    "Prod": {
+      "commandName": "Project",
+      "commandLineArgs": "Input/data.txt"
+    }
+  }
+}
