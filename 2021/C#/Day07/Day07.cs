@@ -46,10 +46,6 @@ void PartB()
 
 int ComputeNonLinearCost(int cost)
 {
-    var result = 0;
-    for(int i = 0; i <= cost; ++i)
-    {
-        result += i;
-    }
-    return result;
+    // n + (n+1) + (n+2) + ..
+    return cost * (cost + 1) / 2; 
 }
