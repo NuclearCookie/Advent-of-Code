@@ -1,9 +1,12 @@
 ﻿using Library;
 using System.Diagnostics;
 
+var stopwatch = Stopwatch.StartNew();
 var entries = IO.ReadInputAsStringArray().Select(x => new ScrambledSignalDecoder(x));
 PartA();
 PartB();
+stopwatch.Stop();
+Console.WriteLine($"Elapsed time: {stopwatch.ElapsedMilliseconds}ms");
 
 void PartA()
 {
