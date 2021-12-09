@@ -1,9 +1,10 @@
 ﻿using Library;
+using Library.Datastructures;
 
 var input = IO.ReadInputAsStringArray().ToArray();
 var numbers = input[0].Split(',').Select(x => int.Parse(x)).ToArray();
-var boards = new List<int[]> ();
-var boardResults = new List<int[]> ();
+var boards = new List<Array2D<int>> ();
+var boardResults = new List<Array2D<int>> ();
 
 SetupData();
 PartA();
@@ -11,8 +12,8 @@ PartB();
 
 void SetupData()
 {
-    int[] currentBoard = new int[25];
-    int[] emptyBoard;
+    Array2D<int> currentBoard = new Array2D<int>(5, 5);
+    Array2D<int> emptyBoard = new Array2D<int>(5, 5);
     var currentRow = 0;
 
     foreach (var line in input[2..])
@@ -20,20 +21,20 @@ void SetupData()
         if (string.IsNullOrWhiteSpace(line) || line == "\n")
         {
             boards.Add(currentBoard);
-            currentBoard = new int[25];
+            currentBoard = new Array2D<int>(5, 5);
             currentRow = 0;
-            emptyBoard = new int[25];
+            emptyBoard = new Array2D<int>(5, 5);
             boardResults.Add(emptyBoard);
         }
         else
         {
             var row = line.Split(' ').Select(x => x.Trim()).Where(x => int.TryParse(x, out _)).Select(x => int.Parse(x)).ToArray();
-            Array.Copy(row, 0, currentBoard, currentRow * 5, row.Length);
+            currentBoard.SetRow(currentRow, row);
             currentRow++;
         }
     }
     boards.Add(currentBoard);
-    emptyBoard = new int[25];
+    emptyBoard = new Array2D<int>(5, 5);
     boardResults.Add(emptyBoard);
 }
 
@@ -59,7 +60,7 @@ void PlayBingo(bool playUntilLastBoard)
             {
                 continue;
             }
-            int[] board = boards[boardIndex];
+            Array2D<int> board = boards[boardIndex];
             for (int numberIndex = 0; numberIndex < board.Length; ++numberIndex)
             {
                 if (board[numberIndex] == number)
@@ -69,6 +70,8 @@ void PlayBingo(bool playUntilLastBoard)
             }
         }
 
+        int[] rowCache = new int[5];
+        int[] colCache = new int[5];
         // check if we have a result
         for (int boardIndex = 0; boardIndex < boardResults.Count; boardIndex++)
         {
@@ -76,11 +79,12 @@ void PlayBingo(bool playUntilLastBoard)
             {
                 continue;
             }
-            int[] board = boardResults[boardIndex];
+            Array2D<int> resultBoard = boardResults[boardIndex];
             for (int rowIndex = 0; rowIndex < 5; ++rowIndex)
             {
-                if (board[(rowIndex * 5)..(rowIndex * 5 + 5)].Sum() == 5
-                    || board[rowIndex] + board[rowIndex + 5] + board[rowIndex + 10] + board[rowIndex + 15] + board[rowIndex + 20] == 5)
+                resultBoard.GetRow(rowIndex, rowCache);
+                resultBoard.GetColumn(rowIndex, colCache);
+                if (rowCache.Sum() == 5 || colCache.Sum() == 5)
                 {
                     Console.WriteLine($"BINGO! On board {boardIndex + 1}");
                     //DebugDraw(board);
@@ -88,9 +92,9 @@ void PlayBingo(bool playUntilLastBoard)
                     if (wonBoards.Count == 1 && !playUntilLastBoard || wonBoards.Count == boardResults.Count && playUntilLastBoard)
                     {
                         var sum = 0;
-                        for (int numberIndex = 0; numberIndex < board.Length; ++numberIndex)
+                        for (int numberIndex = 0; numberIndex < resultBoard.Length; ++numberIndex)
                         {
-                            if (board[numberIndex] == 0)
+                            if (resultBoard[numberIndex] == 0)
                             {
                                 sum += boards[boardIndex][numberIndex];
                             }

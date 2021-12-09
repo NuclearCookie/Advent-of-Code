@@ -181,8 +181,14 @@ namespace Library.Datastructures
             _internalArray = new T[_rows * _cols];
             for (int i = 0; i < _rows; ++i)
             {
-                Array.Copy(initialData[i], 0, _internalArray, i * _cols, _cols);
+                SetRow(i, initialData[i]);
             }
+        }
+
+        public void SetRow(int row, T[] rowData)
+        {
+            Debug.Assert(rowData.Length == _cols);
+            Array.Copy(rowData, 0, _internalArray, row* _cols, _cols);
         }
 
         public void GetRow(int row, T[] outputBuffer)
