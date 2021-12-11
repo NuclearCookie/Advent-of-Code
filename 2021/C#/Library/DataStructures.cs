@@ -265,7 +265,7 @@ namespace Library.Datastructures
                 {
                     outputBuffer[index++] = RowColumnToIndex(row + 1, col - 1);
                 }
-                if (row < _rows - 1 && col < _cols - 1)
+                if (row > 0 && col < _cols - 1)
                 {
                     outputBuffer[index++] = RowColumnToIndex(row -1, col + 1);
                 }
@@ -322,6 +322,20 @@ namespace Library.Datastructures
                 }
             }
             return index;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            for(int row = 0; row < _rows; row++)
+            {
+                for(int col = 0; col < _cols; col++)
+                {
+                    stringBuilder.Append(GetElementAt(row,col));
+                }
+                stringBuilder.AppendLine();
+            }
+            return stringBuilder.ToString();
         }
     }
 }
