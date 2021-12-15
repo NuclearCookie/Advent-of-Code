@@ -13,6 +13,12 @@ namespace Library.Datastructures
         public int X;
         public int Y;
 
+        public Point2(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+
         #region Operators
 
         public static Point2 operator +(Point2 a, Point2 b)
@@ -73,6 +79,11 @@ namespace Library.Datastructures
         public int GetManhattanCoordinates()
         {
             return Math.Abs(X) + Math.Abs(Y);
+        }
+
+        public int GetManhattanDistance(Point2 other)
+        {
+            return Math.Abs(X - other.X) + Math.Abs(Y - other.Y);
         }
     }
 
@@ -151,6 +162,11 @@ namespace Library.Datastructures
             get => _internalArray[i];
             set => _internalArray[i] = value;
         }
+        public T this[Point2 coord]
+        {
+            get => this[coord.Y, coord.X];
+            set => this[coord.Y, coord.X] = value;
+        }
         public T this[int row, int col]
         {
             get => GetElementAt(row, col);
@@ -184,6 +200,15 @@ namespace Library.Datastructures
                 SetRow(i, initialData[i]);
             }
         }
+        public void SetCol(int col, T[] colData)
+        {
+            Debug.Assert(colData.Length == _rows);
+            for(int row = 0; row < colData.Length; ++row)
+            {
+                this[row, col] = colData[row];
+            }
+        }
+
 
         public void SetRow(int row, T[] rowData)
         {
@@ -195,6 +220,13 @@ namespace Library.Datastructures
         {
             Debug.Assert(row >= 0 && row < _rows && outputBuffer.Length == _cols);
             Array.Copy(_internalArray, row * _cols, outputBuffer, 0, _cols);
+        }
+
+        public T[] GetRow(int row)
+        {
+            T[] outputBuffer = new T[_cols];
+            GetRow(row, outputBuffer);
+            return outputBuffer;
         }
 
         public void GetColumn(int column, T[] outputBuffer)
@@ -210,16 +242,33 @@ namespace Library.Datastructures
         {
             return _internalArray[RowColumnToIndex(row, col)];
         }
+
+        public Point2 IndexToRowColumn(int index)
+        {
+            return new Point2 {  Y = index / _cols, X = index % _cols };
+        }
+
         public void IndexToRowColumn(int index, out int row, out int col)
         {
             row = index / _cols;
             col = index % _cols;
         }
 
+        public int RowColumnToIndex(Point2 coord)
+        {
+            Debug.Assert(coord.Y < _rows && coord.X < _cols);
+            return coord.X + (coord.Y * _cols);
+        }
+
         public int RowColumnToIndex(int row, int col)
         {
             Debug.Assert(row < _rows && col < _cols);
             return col + (row * _cols);
+        }
+
+        public int GetNeighbourIndices(Point2 index, int[] outputBuffer)
+        {
+            return GetNeighbourIndices(index.Y, index.X, outputBuffer);
         }
 
         public int GetNeighbourIndices(int index, int[] outputBuffer)
@@ -273,6 +322,11 @@ namespace Library.Datastructures
             return index;
         }
 
+        public int GetNeighbours(Point2 coords, T[] outputBuffer)
+        {
+            return GetNeighbours(coords.Y, coords.X, outputBuffer); 
+        }
+
         public int GetNeighbours(int index, T[] outputBuffer)
         {
             IndexToRowColumn(index, out int row, out int col);
@@ -322,6 +376,18 @@ namespace Library.Datastructures
                 }
             }
             return index;
+        }
+
+        public void Transpose()
+        {
+            var transposed = new Array2D<T>(ColumnLength, RowLength);
+            for(int row = 0; row < RowLength; row++)
+            {
+                transposed.SetCol(row, GetRow(row));
+            }
+            _internalArray = transposed._internalArray;
+            _cols = transposed._cols;
+            _rows = transposed._rows;
         }
 
         public override string ToString()
