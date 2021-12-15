@@ -52,12 +52,11 @@ namespace Library.Algorithms
                         }
                         outPath.Add(nodeGrid.IndexToRowColumn(current.selfIndex));
                         outPath.Reverse();
-                        Debug.Assert(outPath.Count == outPath.Distinct().Count());
                         return true;
                     }
                     else if (closedIndexList.Contains(neighbourIndex) == false)
                     {
-                        neighbourNode.startCost = lowestCost.cost + weightTable[neighbourIndex];
+                        neighbourNode.startCost = lowestCost.startCost + weightTable[neighbourIndex];
                         neighbourNode.endCost = weightTable.IndexToRowColumn(neighbourIndex).GetManhattanDistance(end);
                         if (nodeGrid[neighbourIndex].cost < 0 || nodeGrid[neighbourIndex].cost > neighbourNode.cost)
                         {
