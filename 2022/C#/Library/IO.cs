@@ -8,7 +8,24 @@ namespace Library
 {
     public static class IO
     {
+        public static string ReadInputAsString(bool isTest = false)
+        {
+            string filePath = GetFilePath(isTest);
+            return File.ReadAllText(filePath);
+        }
+
         public static IEnumerable<string> ReadInputAsStringArray(bool isTest = false)
+        {
+            string filePath = GetFilePath(isTest);
+            return File.ReadAllLines(filePath);
+        }
+
+        public static IEnumerable<int> ReadInputAsIntArray(bool isTest = false)
+        {
+            return ReadInputAsStringArray().Select(line => int.Parse(line));
+        }
+
+        private static string GetFilePath(bool isTest)
         {
             var args = Environment.GetCommandLineArgs();
             var filePath = isTest ? "Input/test.txt" : "Input/data.txt";
@@ -16,12 +33,8 @@ namespace Library
             {
                 filePath = args[1];
             }
-            return File.ReadAllLines(filePath);
-        }
 
-        public static IEnumerable<int> ReadInputAsIntArray()
-        {
-            return ReadInputAsStringArray().Select(line => int.Parse(line));
+            return filePath;
         }
     }
 }
