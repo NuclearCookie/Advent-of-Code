@@ -238,6 +238,13 @@ namespace Library.Datastructures
             }
         }
 
+        public T[] GetColumn(int column)
+        {
+            T[] outputBuffer = new T[_rows];
+            GetColumn(column, outputBuffer);
+            return outputBuffer;
+        }
+
         public T GetElementAt(int row, int col)
         {
             return _internalArray[RowColumnToIndex(row, col)];
@@ -398,6 +405,20 @@ namespace Library.Datastructures
                 for(int col = 0; col < _cols; col++)
                 {
                     stringBuilder.Append(GetElementAt(row,col));
+                }
+                stringBuilder.AppendLine();
+            }
+            return stringBuilder.ToString();
+        }
+
+        public string ToString(Func<T, string> formatter)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            for(int row = 0; row < _rows; row++)
+            {
+                for(int col = 0; col < _cols; col++)
+                {
+                    stringBuilder.Append(formatter(GetElementAt(row,col)));
                 }
                 stringBuilder.AppendLine();
             }
