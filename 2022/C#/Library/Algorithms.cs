@@ -79,4 +79,23 @@ namespace Library.Algorithms
             return false;
         }
     }
+
+    public static class Math
+    {
+        public static int GreatestCommonDivisor(int a, int b)
+        {
+            while (b != 0)
+            {
+                int temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        public static int LeastCommonMultiple(int a, int b)
+        {
+            return (a / GreatestCommonDivisor(a, b)) * b;
+        }
+    }
 }
