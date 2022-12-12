@@ -28,11 +28,16 @@ namespace Library.Algorithms
             }
         }
 
-        public static bool AStarPath(Array2D<int> weightTable, Point2 start, Point2 end, List<Point2> outPath)
+        public delegate int HeuristicFunctionDelegate(Point2 parentNode, Point2 currentNode, Point2 end);
+
+        public static bool AStarPath(Array2D<int> weightTable, Point2 start, Point2 end, List<Point2> outPath, HeuristicFunctionDelegate? heuristic = null, int maximumCostToTraverseNode = int.MaxValue)
         {
+            if (heuristic == null)
+                heuristic = (parent, current, end) => current.GetManhattanDistance(end);
+
             var startIndex = weightTable.RowColumnToIndex(start);
             var endIndex = weightTable.RowColumnToIndex(end);
-            var startNode = new AStarNode { startCost = 0, endCost = end.GetManhattanDistance(start), parentIndex = startIndex, selfIndex = startIndex};
+            var startNode = new AStarNode { startCost = 0, endCost = heuristic(start, start, end), parentIndex = startIndex, selfIndex = startIndex};
             SortedSet<AStarNode> openList = new SortedSet<AStarNode>(new AStarNodeComparer()) { startNode };
             HashSet<int> closedIndexList = new HashSet<int> ();
             Array2D<AStarNode> nodeGrid = new Array2D<AStarNode>(weightTable.RowLength, weightTable.ColumnLength, Enumerable.Repeat(new AStarNode {  startCost = -1 }, weightTable.Length).ToArray());
@@ -50,8 +55,9 @@ namespace Library.Algorithms
                 {
                     var neighbourIndex = neighbourIndexCache[i];
                     AStarNode neighbourNode = new AStarNode { parentIndex = lowestCost.selfIndex, selfIndex = neighbourIndex };
-
-                    if (neighbourIndex == endIndex)
+                    var currentCoordinate = weightTable.IndexToRowColumn(lowestCost.selfIndex);
+                    var neighbourCoordinate = weightTable.IndexToRowColumn(neighbourIndex);
+                    if (neighbourIndex == endIndex && heuristic(currentCoordinate, neighbourCoordinate, end) < maximumCostToTraverseNode)
                     {
                         AStarNode current = neighbourNode;
                         while(current.selfIndex != startIndex)
@@ -65,9 +71,11 @@ namespace Library.Algorithms
                     }
                     else if (closedIndexList.Contains(neighbourIndex) == false)
                     {
+                        // Note to future self. Don't try to mess with the startCost, however tempting it may be.
+                        // If you need control, find a good heuristic to use as endCost
                         neighbourNode.startCost = lowestCost.startCost + weightTable[neighbourIndex];
-                        neighbourNode.endCost = weightTable.IndexToRowColumn(neighbourIndex).GetManhattanDistance(end);
-                        if (nodeGrid[neighbourIndex].cost < 0 || nodeGrid[neighbourIndex].cost > neighbourNode.cost)
+                        neighbourNode.endCost = heuristic(currentCoordinate, neighbourCoordinate, end);
+                        if (neighbourNode.endCost < maximumCostToTraverseNode && nodeGrid[neighbourIndex].cost < 0 || nodeGrid[neighbourIndex].cost > neighbourNode.cost)
                         {
                             var success = openList.Add(neighbourNode);
                             nodeGrid[neighbourIndex] = neighbourNode;
@@ -96,6 +104,16 @@ namespace Library.Algorithms
         public static int LeastCommonMultiple(int a, int b)
         {
             return (a / GreatestCommonDivisor(a, b)) * b;
+        }
+
+        public static float Lerp(float from, float to, float amount)
+        {
+            return from + amount * (to - from);
+        }
+
+        public static double Lerp(double from, double to, double amount)
+        {
+            return from + amount * (to - from);
         }
     }
 }

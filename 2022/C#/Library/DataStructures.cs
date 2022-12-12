@@ -76,6 +76,14 @@ namespace Library.Datastructures
 
         #endregion
 
+        #region Properties
+
+        public float SquareMagnitude => X * X + Y * Y;
+
+        public float Magnitude => MathF.Sqrt(SquareMagnitude);
+
+        #endregion
+
         public int GetManhattanCoordinates()
         {
             return Math.Abs(X) + Math.Abs(Y);
