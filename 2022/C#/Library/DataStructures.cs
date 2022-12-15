@@ -271,13 +271,19 @@ namespace Library.Datastructures
 
         public int RowColumnToIndex(Point2 coord)
         {
-            Debug.Assert(coord.Y < _rows && coord.X < _cols);
+            if (coord.Y >= _rows || coord.X >= _cols)
+            {
+                throw new IndexOutOfRangeException($"Trying to access Array2D at [{coord.Y}, {coord.X}], while size is [{_rows}, {_cols}]");
+            }
             return coord.X + (coord.Y * _cols);
         }
 
         public int RowColumnToIndex(int row, int col)
         {
-            Debug.Assert(row < _rows && col < _cols);
+            if (row >= _rows || col >= _cols)
+            {
+                throw new IndexOutOfRangeException($"Trying to access Array2D at [{row}, {col}], while size is [{_rows}, {_cols}]");
+            }
             return col + (row * _cols);
         }
 
