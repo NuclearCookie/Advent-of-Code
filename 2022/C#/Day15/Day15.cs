@@ -60,7 +60,8 @@ long GetTuningFrequency()
 
 List<SegmentOnLine> SolveForLine(int lineToSolve)
 {
-    List<SegmentOnLine> segmentsForLine = new List<SegmentOnLine>();
+    List<SegmentOnLine> segmentsForLine = new List<SegmentOnLine>(16);
+    var sorter = new SegmentSorter();
     foreach (var sensorData in inputData)
     {
         var sensor = sensorData.Item1;
@@ -76,7 +77,7 @@ List<SegmentOnLine> SolveForLine(int lineToSolve)
             right = new Point2(sensor.X + maxSidewaysMovement, lineToSolve)
         });
     }
-    segmentsForLine.Sort((a, b) => a.left.X - b.left.X);
+    segmentsForLine.Sort(sorter);
     int amountOfSegments = -1;
 
     do
@@ -106,7 +107,15 @@ List<SegmentOnLine> SolveForLine(int lineToSolve)
     return segmentsForLine;
 }
 
-class SegmentOnLine
+class SegmentSorter : IComparer<SegmentOnLine>
+{
+    public int Compare(SegmentOnLine x, SegmentOnLine y)
+    {
+        return x.left.X - y.left.X;
+    }
+}
+
+struct SegmentOnLine
 {
     public Point2 left;
     public Point2 right;
